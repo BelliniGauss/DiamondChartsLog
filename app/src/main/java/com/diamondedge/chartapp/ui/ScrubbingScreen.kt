@@ -22,6 +22,7 @@ import com.diamondedge.charts.Color
 import com.diamondedge.charts.Draw
 import com.diamondedge.charts.GridLines
 import com.diamondedge.charts.LineAttributes
+import com.diamondedge.charts.LogXYGraph
 import com.diamondedge.charts.Margins
 import com.diamondedge.charts.TickLabelPosition
 import com.diamondedge.charts.XYGraph
@@ -67,8 +68,8 @@ fun ScrubbingScreen() {
         ) {
             val charts = Charts(size.width, size.height, Margins(25f, 25f, 45f, 10f), LEGEND_RIGHT)
 
-            charts.add(XYGraph(data1))
-            charts.add(XYGraph(data2))
+            charts.add(LogXYGraph(data1))
+            charts.add(LogXYGraph(data2))
 
             charts.vertAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.BelowTick
@@ -76,6 +77,9 @@ fun ScrubbingScreen() {
             charts.horizontalAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.RightOfTick
             }
+
+            charts.horizontalAxis?.apply { minValueOverride = -5.0  }
+            charts.vertAxis?.apply { upperDataMargin = 3.0 }
 
             drawIntoCanvas { canvas ->
                 val g = ComposeGC(canvas, density)
