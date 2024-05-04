@@ -5,10 +5,12 @@ class LogXYGraph (
     drawLine: Boolean = true,
     fillArea: Boolean = false,
     showBubble: Boolean = false,
-    curveSmothing: Boolean = false,
-    val logAxisSelection: axis = axis.horizontal,
-) :
-    XYGraph(data, drawLine, fillArea, showBubble, curveSmothing) {
+    curveSmoothing: Boolean = false,
+    private val logAxisSelection: AxisGroup = AxisGroup.Horizontal,
+) : XYGraph(LogToLinear(data), drawLine, fillArea, showBubble, curveSmoothing) {
+
+    private val logData = data
+
 
 
     /**
@@ -18,19 +20,19 @@ class LogXYGraph (
 
     override fun createHorizontalAxis(): Axis {
         return when(logAxisSelection){
-            axis.none -> DecimalAxis()
-            axis.horizontal -> LogAxis()
-            axis.vertical -> DecimalAxis()
-            axis.both -> LogAxis()
+            AxisGroup.None -> DecimalAxis()
+            AxisGroup.Horizontal -> LogAxis()
+            AxisGroup.Vertical -> DecimalAxis()
+            AxisGroup.Both -> LogAxis()
         }
     }
 
     override fun createVerticalAxis(): Axis {
         return when(logAxisSelection){
-            axis.none -> DecimalAxis()
-            axis.horizontal -> LogAxis()
-            axis.vertical -> DecimalAxis()
-            axis.both -> LogAxis()
+            AxisGroup.None -> DecimalAxis()
+            AxisGroup.Horizontal -> LogAxis()
+            AxisGroup.Vertical -> DecimalAxis()
+            AxisGroup.Both -> LogAxis()
         }
     }
 
@@ -39,9 +41,14 @@ class LogXYGraph (
     }
 }
 
-enum class axis(){
-    none,
-    horizontal,
-    vertical,
-    both
+private fun LogToLinear(data: ChartData): ChartData{
+    //TODO implement the conversion
+    return data
+}
+
+enum class AxisGroup{
+    None,
+    Horizontal,
+    Vertical,
+    Both
 }
