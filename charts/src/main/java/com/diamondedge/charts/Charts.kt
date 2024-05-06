@@ -5,7 +5,10 @@
  */
 package com.diamondedge.charts
 
-open class Charts(width: Float, height: Float, val margins: Margins = Margins.default, var legendPosition: Int = LEGEND_NONE) {
+open class Charts(width: Float,
+                  height: Float,
+                  val margins: Margins = Margins.default,
+                  var legendPosition: Int = LEGEND_NONE) {
 
     val count: Int
         get() = charts.size

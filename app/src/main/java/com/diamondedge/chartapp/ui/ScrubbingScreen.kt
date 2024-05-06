@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import com.diamondedge.charts.AxisGroup
 import com.diamondedge.charts.ChartData
 import com.diamondedge.charts.Charts
 import com.diamondedge.charts.Charts.Companion.LEGEND_RIGHT
@@ -26,6 +27,7 @@ import com.diamondedge.charts.GridLines
 import com.diamondedge.charts.LineAttributes
 import com.diamondedge.charts.LineGraph
 import com.diamondedge.charts.LogXYGraph
+import com.diamondedge.charts.LogarithmicAxis
 import com.diamondedge.charts.Margins
 import com.diamondedge.charts.RandomData
 import com.diamondedge.charts.TickLabelPosition
@@ -33,13 +35,13 @@ import com.diamondedge.charts.XYGraph
 import com.diamondedge.charts.compose.ComposeGC
 
 private val fn1: (Double) -> Double = { x ->
-    (x + 1) * (x - 2) * (x - 1)
+    (x )
 }
 private val fn2: (Double) -> Double = { x ->
-    (x + 2) * (x - 1) * (x - 3)
+    (x + 2)
 }
-private const val minX = -1.0
-private const val maxX = 3.0
+private const val minX = 1.0
+private const val maxX = 100.0
 private val scrubLine = LineAttributes(color = 0xffC4C4C4, width = 1f)
 private const val scrubDataPointSizeDp = 8f
 
@@ -50,6 +52,8 @@ fun ScrubbingScreen() {
     var isScrubbing by remember { mutableStateOf(false) }
     val data1 = createData(fn1, minX, maxX, "fn1", Color.green)
     val data2 = createData(fn2, minX, maxX, "fn2")
+
+
     val allData = listOf(data1, data2)
 
     Surface(Modifier.fillMaxSize()) {
@@ -72,17 +76,21 @@ fun ScrubbingScreen() {
         ) {
             val charts = Charts(size.width, size.height, Margins(25f, 25f, 45f, 10f), LEGEND_RIGHT)
 
-            charts.add(LogXYGraph(data1))
-            charts.add(LogXYGraph(data2))
+            charts.add(LogXYGraph(data1, logAxisSelection = AxisGroup.Horizontal))
+            charts.add(LogXYGraph(data2, logAxisSelection = AxisGroup.Horizontal))
+
+
 
             charts.vertAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.BelowTick
+
             }
             charts.horizontalAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.RightOfTick
+                isMinorTickShowing = true
             }
 
-            // charts.horizontalAxis?.apply { minValueOverride = -5.0  }
+            //charts.horizontalAxis?.apply { minValueOverride = 1.0  }
             //charts.vertAxis?.apply { upperDataMargin = 3.0 }
 
             drawIntoCanvas { canvas ->
