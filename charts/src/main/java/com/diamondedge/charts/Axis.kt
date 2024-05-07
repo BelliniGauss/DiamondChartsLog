@@ -262,9 +262,11 @@ open class Axis protected constructor() {
      */
     private fun calcScale() {
         if (isVertical) {
-            calcScale(height)
+            if(height != 0)
+                calcScale(height)
         } else {    // horizontal axis
-            calcScale(width)
+            if(width != 0)
+                calcScale(width)
         }
     }
 
@@ -450,13 +452,13 @@ open class Axis protected constructor() {
     }
 
     internal fun extraHorLabelHeight(g: GraphicsContext, width: Int): Int {
-        calcScale(width)
+        /*calcScale(width)
         val unitWidth = scaleData(majorTickInc)
         val label = tickLabel(minVal)
         val strWidth = g.stringWidth(label)
         if (allow2LabelPositions && strWidth > unitWidth / 2) {
             return g.fontMetrics.height
-        }
+        }*/
         return 0
     }
 

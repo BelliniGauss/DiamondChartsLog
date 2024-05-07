@@ -11,7 +11,7 @@ import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 
-class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : DecimalAxis(
+class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) : DecimalAxis(
 ) {
     init {
         minorTickIncNum = 10
@@ -29,7 +29,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
             minValue = floor(minValue / tickInc) * tickInc
 
             // make maxVal be an exact multiple of majorTickInc just larger than maxVal
-            tickInc = nextMajorIncVal(maxValue, tickInc)
+            tickInc = nextMajorIncVal(maxValue*0.99, tickInc)
             maxValue = ceil(maxValue / tickInc) * tickInc
 
             adjustMinMax()
@@ -71,19 +71,9 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
             return (baseLabelPosition[indexLastBaseValue + 1 ].toDouble() * (orderOfMagnitude)) - oldPosition
         else
             return (baseLabelPosition[0].toDouble() * (orderOfMagnitude) * 10) - oldPosition
-/*
 
-        //  In case pos is greater than the maximum label for this order of magnitude level
-        //  I'll then return the smallest label of the next order of magnitude level
-        if ( baseValue >  baseLabelPosition.max())
-        {
-            return orderOfMagnitude *  baseLabelPosition.min() * 10
-        }
 
-        //  Otherwise I'll just search for the next label
-        val nextLabelBase = (baseLabelPosition.filter{it > baseValue }).min()*/
 
-        //return nextLabelBase * orderOfMagnitude
     }
 
     override fun adjustMinMax() {
@@ -97,6 +87,10 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
     /** Return data value scaled to be in pixels
      */
     override fun scaleData(dataValue: Double): Int {
+        val value = (log10(dataValue) / scale).toLong().toInt()
+        /*if(dataValue == 0.0 && minValue > 0.0){
+            return scaleData(minValue)
+        }*/
         return (log10(dataValue) / scale).toLong().toInt()
     }
 

@@ -41,7 +41,7 @@ private val fn2: (Double) -> Double = { x ->
     (x + 2)
 }
 private const val minX = 1.0
-private const val maxX = 100.0
+private const val maxX = 50.0
 private val scrubLine = LineAttributes(color = 0xffC4C4C4, width = 1f)
 private const val scrubDataPointSizeDp = 8f
 
@@ -82,12 +82,14 @@ fun ScrubbingScreen() {
 
 
             charts.vertAxis?.apply {
-                majorTickLabelPosition = TickLabelPosition.BelowTick
-
+                majorTickLabelPosition = TickLabelPosition.TickCenter
             }
             charts.horizontalAxis?.apply {
-                majorTickLabelPosition = TickLabelPosition.RightOfTick
-                isMinorTickShowing = true
+                majorTickLabelPosition = TickLabelPosition.BelowTick
+                //isMinorTickShowing = true
+            }
+            charts.gridLines?.apply {
+                minorVerticalLines.isVisible = true
             }
 
             //charts.horizontalAxis?.apply { minValueOverride = 1.0  }
