@@ -25,12 +25,10 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
 
         if (isAutoScaling) {
             // make minVal be an exact multiple of majorTickInc just smaller than minVal
-            var tickInc = nextMajorIncVal(minValue, 1.0)
-            minValue = floor(minValue / tickInc) * tickInc
+            minValue = previousMajorValue(minValue*1.01)
 
             // make maxVal be an exact multiple of majorTickInc just larger than maxVal
-            tickInc = nextMajorIncVal(maxValue*0.99, tickInc)
-            maxValue = ceil(maxValue / tickInc) * tickInc
+            maxValue = nextMajorValue(maxValue*0.99 )
 
             adjustMinMax()
             calcScale(rangePix)
@@ -52,28 +50,48 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         return incrementVal
     }
 
-    override fun nextMajorIncVal(pos: Double, incrementVal: Double): Double {
-        val lol = (ln(pos) / LOG10).toInt().toDouble()
-        var orderOfMagnitude = 10.0.pow((ln(pos) / LOG10).toInt().toDouble())
-        //if (orderOfMagnitude == 0.0)
-        //    orderOfMagnitude = 1.0
+    fun nextMajorValue(pos: Double):Double{
+        var orderOfMagnitude = if(pos > 0.0) 10.0.pow((ln(pos) / LOG10).toInt().toDouble()) else {
+            0.00001
+        }
 
         val baseValue = (pos / (orderOfMagnitude)).toInt()
 
-        val indexLastBaseValue = baseLabelPosition.lastIndexOf(baseValue)
+        val nextBaseValue = baseLabelPosition.filter { it > baseValue }.minOrNull()
 
-        if( indexLastBaseValue == -1)
-            return baseLabelPosition[0].toDouble() * (orderOfMagnitude)
-
-        val oldPosition = baseLabelPosition[indexLastBaseValue].toDouble() * (orderOfMagnitude)
-
-        if(indexLastBaseValue < (baseLabelPosition.size -1))
-            return (baseLabelPosition[indexLastBaseValue + 1 ].toDouble() * (orderOfMagnitude)) - oldPosition
+        /**     if i could not find a base value bigger than pos i'll take the biggest baseValue at the
+         *       next smaller order of magnitude:
+         */
+        return if (nextBaseValue == null)
+            baseLabelPosition.min().toDouble() * orderOfMagnitude * 10
         else
-            return (baseLabelPosition[0].toDouble() * (orderOfMagnitude) * 10) - oldPosition
+            nextBaseValue.toDouble() * orderOfMagnitude
+    }
 
+    fun previousMajorValue(pos: Double):Double{
+        var orderOfMagnitude = if(pos > 0.0) 10.0.pow((ln(pos) / LOG10).toInt().toDouble()) else {
+            0.00001
+        }
 
+        val baseValue = (pos / (orderOfMagnitude)).toInt()
 
+        val smallerBaseValue = baseLabelPosition.filter { it < baseValue }.maxOrNull()
+
+        /**  if i could not find a base value smaller than pos i'll take the biggest baseValue at the
+         *       next smaller order of magnitude:
+         */
+        return if (smallerBaseValue == null)
+            baseLabelPosition.max().toDouble() * orderOfMagnitude * 0.1
+        else
+            smallerBaseValue.toDouble() * orderOfMagnitude
+    }
+
+    override fun nextMajorIncVal(pos: Double, incrementVal: Double): Double {
+        return nextMajorValue(pos) - pos
+    }
+
+    fun previousMajourIncVal(pos: Double, incrementVal: Double):Double{
+        return pos - previousMajorValue(pos)
     }
 
     override fun adjustMinMax() {
@@ -105,13 +123,22 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
     companion object {
         private val LOG10 = ln(10.0)
 
+
+
         private fun log10(value: Double): Double {
-            var v = value
+            /*var v = value
             val sign = if (v < 0) -1 else 1
             v = abs(v)
             if (v < 10)
                 v += (10 - v) / 10   // make 0 correspond to 0
-            return ln(v) / LOG10 * sign
+            return ln(v) / LOG10 * sign*/
+
+            val sign = if (value < 0) -1 else 1
+
+            if(value == 0.0)
+                return 0.0
+
+            return kotlin.math.log10(value) * sign
         }
     }
 }
