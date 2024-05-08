@@ -17,11 +17,40 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         minorTickIncNum = 10
     }
 
+    private fun tag(): String = if (isVertical) "VertLogAxis" else "HorLogAxis"
+
 
 
 
     override fun calcMetrics(rangePix: Int, g: GraphicsContext, font: Font?) {
-        super.calcMetrics(rangePix, g, font)
+        //super.calcMetrics(rangePix, g, font)
+
+        /**
+         * from Axis:
+         */
+        maxValueOverride?.let { overrideValue ->
+            if (overrideValue > maxValue)
+                maxValue = overrideValue
+        }
+
+        minValueOverride?.let { overrideValue ->
+            if (overrideValue < minValue && overrideValue > 0.0)
+                minValue = overrideValue
+        }
+
+        calcScale(rangePix)
+        if (numberMinorIncrements > 0) {
+            minorTickIncNum = numberMinorIncrements
+        }
+        log.d(tag()) { "calcMetrics($rangePix) $this" }
+
+        /**
+         * from DecimalAxis:
+         */
+        majorTickInc = 5.0
+
+
+
 
         if (isAutoScaling) {
             // make minVal be an exact multiple of majorTickInc just smaller than minVal
@@ -123,7 +152,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
     companion object {
         private val LOG10 = ln(10.0)
 
-
+        private val log = moduleLogging()
 
         private fun log10(value: Double): Double {
             /*var v = value
