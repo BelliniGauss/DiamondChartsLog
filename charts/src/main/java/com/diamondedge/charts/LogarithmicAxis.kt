@@ -47,17 +47,17 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         /**
          * from DecimalAxis:
          */
-        majorTickInc = 5.0
+        majorTickInc = 1.0
 
 
 
 
         if (isAutoScaling) {
             // make minVal be an exact multiple of majorTickInc just smaller than minVal
-            minValue = previousMajorValue(minValue*1.01)
+            minValue = previousMajorValue(minValue*1.001, acceptEqual = true)
 
             // make maxVal be an exact multiple of majorTickInc just larger than maxVal
-            maxValue = nextMajorValue(maxValue*0.99 )
+            maxValue = nextMajorValue(maxValue*0.999, acceptEqual = true )
 
             adjustMinMax()
             calcScale(rangePix)
@@ -79,14 +79,18 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         return incrementVal
     }
 
-    fun nextMajorValue(pos: Double):Double{
+    fun nextMajorValue(pos: Double, acceptEqual: Boolean = false):Double{
         var orderOfMagnitude = if(pos > 0.0) 10.0.pow((ln(pos) / LOG10).toInt().toDouble()) else {
             0.00001
         }
 
         val baseValue = (pos / (orderOfMagnitude)).toInt()
 
-        val nextBaseValue = baseLabelPosition.filter { it > baseValue }.minOrNull()
+        val nextBaseValue =
+            if(acceptEqual)
+                baseLabelPosition.filter { it >= baseValue }.minOrNull()
+            else
+                baseLabelPosition.filter { it > baseValue }.minOrNull()
 
         /**     if i could not find a base value bigger than pos i'll take the biggest baseValue at the
          *       next smaller order of magnitude:
@@ -97,14 +101,18 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
             nextBaseValue.toDouble() * orderOfMagnitude
     }
 
-    fun previousMajorValue(pos: Double):Double{
+    fun previousMajorValue(pos: Double, acceptEqual: Boolean = false ):Double{
         var orderOfMagnitude = if(pos > 0.0) 10.0.pow((ln(pos) / LOG10).toInt().toDouble()) else {
             0.00001
         }
 
         val baseValue = (pos / (orderOfMagnitude)).toInt()
 
-        val smallerBaseValue = baseLabelPosition.filter { it < baseValue }.maxOrNull()
+        val smallerBaseValue =
+            if(acceptEqual)
+                baseLabelPosition.filter { it <= baseValue }.maxOrNull()
+            else
+                baseLabelPosition.filter { it < baseValue }.maxOrNull()
 
         /**  if i could not find a base value smaller than pos i'll take the biggest baseValue at the
          *       next smaller order of magnitude:
@@ -126,23 +134,39 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
     override fun adjustMinMax() {
         // cannot have log scales with negative numbers
         if (minValue < 0)
-            minValue = 0.0
-
-
+            minValue = 0.0001
     }
 
-    /** Return data value scaled to be in pixels
+    /**
+     * Return the screen coordinate (in pixels) based on a data value
+     */
+    override fun convertToPixel(dataValue: Double): Int {
+        var value = scaleData(dataValue)
+        if (isVertical)
+            value = y - value
+        else
+            value += x
+        return value
+    }
+
+    /**
+     * Return the data value corresponding to the screen coordinate (in pixels)
+     */
+    override fun convertToValue(pixelValue: Int): Double {
+        val minValPixel = convertToPixel(minValue)
+        return minValue + scalePixel(abs(pixelValue - minValPixel))
+    }
+
+
+    /**
+     * Return data value scaled to be in pixels
      */
     override fun scaleData(dataValue: Double): Int {
-        val value = (log10(dataValue) / scale).toLong().toInt()
-        /*if(dataValue == 0.0 && minValue > 0.0){
-            return scaleData(minValue)
-        }*/
-        return (log10(dataValue) / scale).toLong().toInt()
+        return ((log10(dataValue)- log10(minValue)) / scale).toLong().toInt()
     }
 
     override fun scalePixel(pixelValue: Int): Double {
-        return 10.0.pow(pixelValue * scale)
+        return 10.0.pow((pixelValue * scale) + log10(minValue))
     }
 
     override fun toString(): String {

@@ -561,7 +561,7 @@ open class Axis protected constructor() {
     /**
      * Return the screen coordinate (in pixels) based on a data value
      */
-    fun convertToPixel(dataValue: Double): Int {
+    open fun convertToPixel(dataValue: Double): Int {
         var value = scaleData(dataValue - minVal)
         if (isVertical)
             value = y - value
@@ -573,7 +573,7 @@ open class Axis protected constructor() {
     /**
      * Return the data value corresponding to the screen coordinate (in pixels)
      */
-    fun convertToValue(pixelValue: Int): Double {
+    open fun convertToValue(pixelValue: Int): Double {
         val minValPixel = convertToPixel(minVal)
         return minVal + scalePixel(abs(pixelValue - minValPixel))
     }
