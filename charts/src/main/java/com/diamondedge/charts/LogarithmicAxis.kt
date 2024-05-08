@@ -47,7 +47,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         /**
          * from DecimalAxis:
          */
-        majorTickInc = 1.0
+        majorTickInc = 2.0
 
 
 
