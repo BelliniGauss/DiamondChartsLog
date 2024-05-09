@@ -6,7 +6,6 @@
 package com.diamondedge.charts
 
 import kotlin.math.abs
-import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
@@ -79,30 +78,45 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         return incrementVal
     }
 
+
+
+
     fun nextMajorValue(pos: Double, acceptEqual: Boolean = false):Double{
-        var orderOfMagnitude = if(pos > 0.0) 10.0.pow((ln(pos) / LOG10).toInt().toDouble()) else {
-            0.00001
+        var orderOfMagnitude = if(pos > 0.0) 10.0.pow(floor(ln(pos) / LOG10)) else {
+            0.000001
         }
 
-        val baseValue = (pos / (orderOfMagnitude)).toInt()
+        /** Calc the pos value translated to the 1..9.999 range
+         */
+        var baseValue = (pos / (orderOfMagnitude))
 
-        val nextBaseValue =
-            if(acceptEqual){
+        /** Correction for number near 10 at the end of the 1..10 interval as they should be treated
+         *  as 1 at the next orderOfMagnitude.S
+         */
+        if(baseValue in 10.0*0.999..10*1.001){
+            baseValue = 1.0
+            orderOfMagnitude *= 10
+        }
 
-                val candidateBaseValue = baseLabelPosition.filter { it >= baseValue }.minOrNull()
-                if(candidateBaseValue != null) {
-                    if (candidateBaseValue.toDouble() * orderOfMagnitude in pos*0.99..pos*1.01)
-                        candidateBaseValue
-                    else
-                        baseLabelPosition.filter { it > baseValue }.minOrNull()
-                }else
-                    baseLabelPosition.filter { it > baseValue }.minOrNull()
+        /**
+         *  I'll now search for the basic next value, regardless of acceptEqual
+         */
+        var nextBaseValue = baseLabelPosition.filter { it.toDouble() > baseValue }.minOrNull()
+
+        /**
+         *  If acceptEqual is set I'll conduct a specific search for a candidate baseValue near
+         *  the target Position, if found I'll overwrite nextBaseValue.
+         */
+        if(acceptEqual){
+            val equalBaseValue = baseLabelPosition.filter {  baseValue in it.toDouble()*0.999..it.toDouble()*1.001 }.minOrNull()
+
+            if(equalBaseValue != null) {
+                    nextBaseValue = equalBaseValue
             }
-            else
-                baseLabelPosition.filter { it > baseValue }.minOrNull()
+        }
 
         /**     if i could not find a base value bigger than pos i'll take the biggest baseValue at the
-         *       next smaller order of magnitude:
+         *      next smaller order of magnitude:
          */
         return if (nextBaseValue == null)
             baseLabelPosition.min().toDouble() * orderOfMagnitude * 10
@@ -111,38 +125,51 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
     }
 
     fun previousMajorValue(pos: Double, acceptEqual: Boolean = false ):Double{
-        var orderOfMagnitude = if(pos > 0.0) 10.0.pow((ln(pos) / LOG10).toInt().toDouble()) else {
-            0.00001
+
+        var orderOfMagnitude = if(pos > 0.0) 10.0.pow(floor(ln(pos) / LOG10)) else {
+            0.000001
         }
 
-        val baseValue = (pos / (orderOfMagnitude)).toInt()
+        var baseValue = (pos / (orderOfMagnitude))
 
-        val smallerBaseValue =
-            if(acceptEqual){
 
-                val candidateBaseValue = baseLabelPosition.filter { it <= baseValue }.maxOrNull()
-                if(candidateBaseValue != null) {
-                    if (candidateBaseValue.toDouble() * orderOfMagnitude in pos*0.99..pos*1.01)
-                        candidateBaseValue
-                    else
-                        baseLabelPosition.filter { it < baseValue }.maxOrNull()
-                }else
-                    baseLabelPosition.filter { it < baseValue }.maxOrNull()
+        /**
+         * Correction for number near 10 at the end of the 1..10 interval as they should be treated
+         * as 1 at the next orderOfMagnitude.S
+         */
+        if(baseValue  in 10.0*0.999..10*1.001){
+            baseValue = 1.0
+            orderOfMagnitude *= 10
+        }
 
+        /**
+         *  I'll now search for the basic next value, regardless of acceptEqual
+         */
+        var previousBaseValue = baseLabelPosition.filter { it.toDouble() < baseValue }.maxOrNull()
+
+        /**
+         *  If acceptEqual is set I'll conduct a specific search for a candidate baseValue near
+         *  the target Position, if found I'll overwrite nextBaseValue.
+         */
+        if(acceptEqual){
+            val equalBaseValue = baseLabelPosition.filter { baseValue in  it.toDouble()*0.999..it.toDouble()*1.001  }.maxOrNull()
+
+            if(equalBaseValue != null) {
+                    previousBaseValue = equalBaseValue
             }
-            else
-                baseLabelPosition.filter { it < baseValue }.maxOrNull()
-
-
+        }
 
         /**  if i could not find a base value smaller than pos i'll take the biggest baseValue at the
          *       next smaller order of magnitude:
          */
-        return if (smallerBaseValue == null)
+        return if (previousBaseValue == null)
             baseLabelPosition.max().toDouble() * orderOfMagnitude * 0.1
         else
-            smallerBaseValue.toDouble() * orderOfMagnitude
+            previousBaseValue.toDouble() * orderOfMagnitude
     }
+
+
+
 
     override fun nextMajorIncVal(pos: Double, incrementVal: Double): Double {
         return nextMajorValue(pos) - pos
@@ -151,6 +178,9 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
     fun previousMajourIncVal(pos: Double, incrementVal: Double):Double{
         return pos - previousMajorValue(pos)
     }
+
+
+
 
     override fun adjustMinMax() {
         // cannot have log scales with negative numbers
