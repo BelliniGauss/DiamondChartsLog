@@ -54,10 +54,10 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
 
         if (isAutoScaling) {
             // make minVal be an exact multiple of majorTickInc just smaller than minVal
-            minValue = previousMajorValue(minValue*1.001, acceptEqual = true)
+            minValue = previousMajorValue(minValue, acceptEqual = true)
 
             // make maxVal be an exact multiple of majorTickInc just larger than maxVal
-            maxValue = nextMajorValue(maxValue*0.999, acceptEqual = true )
+            maxValue = nextMajorValue(maxValue, acceptEqual = true )
 
             adjustMinMax()
             calcScale(rangePix)
@@ -87,8 +87,17 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         val baseValue = (pos / (orderOfMagnitude)).toInt()
 
         val nextBaseValue =
-            if(acceptEqual)
-                baseLabelPosition.filter { it >= baseValue }.minOrNull()
+            if(acceptEqual){
+
+                val candidateBaseValue = baseLabelPosition.filter { it >= baseValue }.minOrNull()
+                if(candidateBaseValue != null) {
+                    if (candidateBaseValue.toDouble() * orderOfMagnitude in pos*0.99..pos*1.01)
+                        candidateBaseValue
+                    else
+                        baseLabelPosition.filter { it > baseValue }.minOrNull()
+                }else
+                    baseLabelPosition.filter { it > baseValue }.minOrNull()
+            }
             else
                 baseLabelPosition.filter { it > baseValue }.minOrNull()
 
@@ -109,10 +118,22 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
         val baseValue = (pos / (orderOfMagnitude)).toInt()
 
         val smallerBaseValue =
-            if(acceptEqual)
-                baseLabelPosition.filter { it <= baseValue }.maxOrNull()
+            if(acceptEqual){
+
+                val candidateBaseValue = baseLabelPosition.filter { it <= baseValue }.maxOrNull()
+                if(candidateBaseValue != null) {
+                    if (candidateBaseValue.toDouble() * orderOfMagnitude in pos*0.99..pos*1.01)
+                        candidateBaseValue
+                    else
+                        baseLabelPosition.filter { it < baseValue }.maxOrNull()
+                }else
+                    baseLabelPosition.filter { it < baseValue }.maxOrNull()
+
+            }
             else
                 baseLabelPosition.filter { it < baseValue }.maxOrNull()
+
+
 
         /**  if i could not find a base value smaller than pos i'll take the biggest baseValue at the
          *       next smaller order of magnitude:

@@ -40,8 +40,9 @@ private val fn1: (Double) -> Double = { x ->
 private val fn2: (Double) -> Double = { x ->
     (x + 50)
 }
+
 private const val minX = 1.0
-private const val maxX = 800.0
+private const val maxX = 1200.0
 private val scrubLine = LineAttributes(color = 0xffC4C4C4, width = 1f)
 private const val scrubDataPointSizeDp = 8f
 
