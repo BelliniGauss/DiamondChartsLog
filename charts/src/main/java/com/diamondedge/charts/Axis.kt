@@ -14,6 +14,8 @@ typealias NumberFormatter = (Double) -> String
 
 open class Axis protected constructor() {
 
+   // val logValueFormatter: ((Double) -> String)?
+
     /**
      * The minimum value of the axis. This is the value of the first major tick mark.
      * If AutoScaling is set to true, this is calculated automatically
@@ -220,7 +222,7 @@ open class Axis protected constructor() {
      * Sets the minimum and maximum values of the axis and the majorTickIncrement
      * based on the minimum and maximum values of the data being displayed.
      */
-    internal var isAutoScaling = true
+    var isAutoScaling = true
 
     /**
      * make XYGraphs start drawing data at the y-axis.

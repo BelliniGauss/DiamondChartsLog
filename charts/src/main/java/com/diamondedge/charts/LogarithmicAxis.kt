@@ -10,15 +10,19 @@ import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 
-class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) : DecimalAxis(
+class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : DecimalAxis(
 ) {
     init {
         minorTickIncNum = 10
     }
+    /**
+     * This property will make the plot area extend further than the data, up to the next major tick.
+     */
+    //public var extendRangeToMajorTick = true
+
+
 
     private fun tag(): String = if (isVertical) "VertLogAxis" else "HorLogAxis"
-
-
 
 
     override fun calcMetrics(rangePix: Int, g: GraphicsContext, font: Font?) {
@@ -28,12 +32,12 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
          * from Axis:
          */
         maxValueOverride?.let { overrideValue ->
-            if (overrideValue > maxValue)
+            //if (overrideValue > maxValue)
                 maxValue = overrideValue
         }
 
         minValueOverride?.let { overrideValue ->
-            if (overrideValue < minValue && overrideValue > 0.0)
+            //if (overrideValue < minValue && overrideValue > 0.0)
                 minValue = overrideValue
         }
 
@@ -51,16 +55,19 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
 
 
 
-        if (isAutoScaling) {
+        /*if (isAutoScaling) {
             // make minVal be an exact multiple of majorTickInc just smaller than minVal
             minValue = previousMajorValue(minValue, acceptEqual = true)
 
             // make maxVal be an exact multiple of majorTickInc just larger than maxVal
             maxValue = nextMajorValue(maxValue, acceptEqual = true )
-
             adjustMinMax()
             calcScale(rangePix)
-        }
+        }*/
+
+        adjustMinMax()
+        calcScale(rangePix)
+
     }
 
     override fun calcScale(rangePix: Int): Double {
@@ -247,4 +254,21 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
             return kotlin.math.log10(value) * sign
         }
     }
+}
+
+
+
+class LogarithmicFormatter(){
+
+    companion object : NumberFormatter {
+        override operator fun invoke(value: Double): String{
+
+            return  if (value.toInt() < 1000)
+                        value.toInt().toString()
+                    else
+                        (value / 1000).toInt().toString() + "K"
+
+        }
+    }
+
 }

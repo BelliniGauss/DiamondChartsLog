@@ -7,19 +7,8 @@ class LogXYGraph (
     showBubble: Boolean = false,
     curveSmoothing: Boolean = false,
     private val logAxisSelection: AxisGroup = AxisGroup.Horizontal,
+    var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)
 ) : XYGraph(logToLinear(data), drawLine, fillArea, showBubble, curveSmoothing) {
-
-
-    /**
-     * Origianl data, real numerical representation.
-     */
-    private val logData = data
-
-    /**
-     * Data converted to a linear coordinate axis for a logarithmic representation
-     */
-    private val linearData = logToLinear(data)
-
 
 
     /**
@@ -30,9 +19,9 @@ class LogXYGraph (
     override fun createHorizontalAxis(): Axis {
         return when(logAxisSelection){
             AxisGroup.None -> DecimalAxis()
-            AxisGroup.Horizontal -> LogarithmicAxis()
+            AxisGroup.Horizontal -> LogarithmicAxis(baseLabelPosition)
             AxisGroup.Vertical -> DecimalAxis()
-            AxisGroup.Both -> LogarithmicAxis()
+            AxisGroup.Both -> LogarithmicAxis(baseLabelPosition)
         }
     }
 
@@ -40,8 +29,8 @@ class LogXYGraph (
         return when(logAxisSelection){
             AxisGroup.None -> DecimalAxis()
             AxisGroup.Horizontal -> DecimalAxis()
-            AxisGroup.Vertical -> LogarithmicAxis()
-            AxisGroup.Both -> LogarithmicAxis()
+            AxisGroup.Vertical -> LogarithmicAxis(baseLabelPosition)
+            AxisGroup.Both -> LogarithmicAxis(baseLabelPosition)
         }
     }
 

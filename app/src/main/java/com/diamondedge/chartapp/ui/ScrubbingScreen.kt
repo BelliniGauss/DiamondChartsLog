@@ -28,6 +28,7 @@ import com.diamondedge.charts.LineAttributes
 import com.diamondedge.charts.LineGraph
 import com.diamondedge.charts.LogXYGraph
 import com.diamondedge.charts.LogarithmicAxis
+import com.diamondedge.charts.LogarithmicFormatter
 import com.diamondedge.charts.Margins
 import com.diamondedge.charts.RandomData
 import com.diamondedge.charts.TickLabelPosition
@@ -42,8 +43,8 @@ private val fn2: (Double) -> Double = { x ->
     (x.pow(0.5) + 50)
 }
 
-private const val minX = 1.0
-private const val maxX = 50.0
+private const val minX = 20.0
+private const val maxX = 22000.0
 private val scrubLine = LineAttributes(color = 0xffC4C4C4, width = 1f)
 private const val scrubDataPointSizeDp = 8f
 
@@ -76,6 +77,7 @@ fun ScrubbingScreen() {
                     }
                 )
         ) {
+
             val charts = Charts(size.width, size.height, Margins(25f, 25f, 45f, 10f), LEGEND_RIGHT)
 
             charts.add(LogXYGraph(data1, logAxisSelection = AxisGroup.Horizontal))
@@ -89,14 +91,14 @@ fun ScrubbingScreen() {
             }
             charts.horizontalAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.BelowTick
-                //isMinorTickShowing = true
+                numberFormatter = LogarithmicFormatter
+                isMinorTickShowing = true
+                minValueOverride = 10.0
+                maxValueOverride = 25000.0
             }
             charts.gridLines?.apply {
                 minorVerticalLines.isVisible = true
             }
-
-            //charts.horizontalAxis?.apply { minValueOverride = 1.0  }
-            //charts.vertAxis?.apply { upperDataMargin = 3.0 }
 
             drawIntoCanvas { canvas ->
                 val g = ComposeGC(canvas, density)
