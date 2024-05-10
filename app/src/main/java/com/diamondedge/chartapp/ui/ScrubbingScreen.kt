@@ -33,16 +33,17 @@ import com.diamondedge.charts.RandomData
 import com.diamondedge.charts.TickLabelPosition
 import com.diamondedge.charts.XYGraph
 import com.diamondedge.charts.compose.ComposeGC
+import kotlin.math.pow
 
 private val fn1: (Double) -> Double = { x ->
-    (x )
+    (x.pow(0.5) )
 }
 private val fn2: (Double) -> Double = { x ->
-    (x + 50)
+    (x.pow(0.5) + 50)
 }
 
-private const val minX = 100.0
-private const val maxX = 22000.0
+private const val minX = 1.0
+private const val maxX = 50.0
 private val scrubLine = LineAttributes(color = 0xffC4C4C4, width = 1f)
 private const val scrubDataPointSizeDp = 8f
 
@@ -84,6 +85,7 @@ fun ScrubbingScreen() {
 
             charts.vertAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.TickCenter
+                majorTickIncrement = 50.0
             }
             charts.horizontalAxis?.apply {
                 majorTickLabelPosition = TickLabelPosition.BelowTick

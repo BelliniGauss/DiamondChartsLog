@@ -81,16 +81,18 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
 
 
 
-    fun nextMajorValue(pos: Double, acceptEqual: Boolean = false):Double{
+    private fun nextMajorValue(pos: Double, acceptEqual: Boolean = false):Double{
         var orderOfMagnitude = if(pos > 0.0) 10.0.pow(floor(ln(pos) / LOG10)) else {
             0.000001
         }
 
-        /** Calc the pos value translated to the 1..9.999 range
+        /**
+         *  Calc the pos value translated to the 1..9.999 range
          */
         var baseValue = (pos / (orderOfMagnitude))
 
-        /** Correction for number near 10 at the end of the 1..10 interval as they should be treated
+        /**
+         *  Correction for number near 10 at the end of the 1..10 interval as they should be treated
          *  as 1 at the next orderOfMagnitude.S
          */
         if(baseValue in 10.0*0.999..10*1.001){
@@ -124,7 +126,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5, 8)) :
             nextBaseValue.toDouble() * orderOfMagnitude
     }
 
-    fun previousMajorValue(pos: Double, acceptEqual: Boolean = false ):Double{
+    private fun previousMajorValue(pos: Double, acceptEqual: Boolean = false ):Double{
 
         var orderOfMagnitude = if(pos > 0.0) 10.0.pow(floor(ln(pos) / LOG10)) else {
             0.000001

@@ -58,7 +58,7 @@ fun createData(fn: (Double) -> Double, minX: Double, maxX: Double, id: Any = "fn
             return id.toString()
         }
     }
-    data.dataCount = 100
+    data.dataCount = 1000
     val xInc = (maxX - minX) / data.dataCount
     data.setValue(0, minX, fn(minX))
     for (i in 1 until data.dataCount) {
