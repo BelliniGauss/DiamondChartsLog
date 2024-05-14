@@ -5,6 +5,15 @@
 [![Kotlin](https://img.shields.io/badge/Compose-1.4.4-blue.svg)](https://developer.android.com/jetpack/androidx/releases/compose-ui)
 [![License](https://img.shields.io/badge/License-Apache--2.0-green)](http://www.apache.org/licenses/LICENSE-2.0)
 
+##  This Fork:
+
+this is a fork of the original trying to add a more complete version of logarithmic charts. 
+Still not finished lol.
+
+
+
+
+
 Diamond Charts is a charting library for Android Jetpack Compose.
 
 ## Setup
