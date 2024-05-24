@@ -214,7 +214,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
      */
     override fun convertToValue(pixelValue: Int): Double {
         val minValPixel = convertToPixel(minValue)
-        return minValue + scalePixel(abs(pixelValue - minValPixel))
+        return  scalePixel(abs(pixelValue - minValPixel))
     }
 
 
@@ -225,6 +225,10 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
         return ((log10(dataValue)- log10(minValue)) / scale).toLong().toInt()
     }
 
+
+    /**
+     * Return the Data value corresponding to the axis coordinate (in pixels)
+     */
     override fun scalePixel(pixelValue: Int): Double {
         return 10.0.pow((pixelValue * scale) + log10(minValue))
     }
