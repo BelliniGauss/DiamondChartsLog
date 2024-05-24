@@ -47,6 +47,7 @@ private const val maxX = 50.0
 private val scrubLine = LineAttributes(color = 0xffC4C4C4, width = 1f)
 private const val scrubDataPointSizeDp = 8f
 
+
 @Composable
 fun ScrubbingScreen() {
     val density = LocalDensity.current
