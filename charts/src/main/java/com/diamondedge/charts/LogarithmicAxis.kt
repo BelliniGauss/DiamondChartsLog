@@ -221,8 +221,15 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
     /**
      * Return data value scaled to be in pixels, starting from the beginning of the axis
      */
-    override fun scaleData(dataValue: Double): Int {
-        return ((log10(dataValue)- log10(minValue)) / scale).toLong().toInt()
+    override fun scaleData(dataValue: Double, previousValue:Double): Int {
+        return if(previousValue > minValue)
+            ((log10(dataValue)- log10(previousValue)) / scale).toLong().toInt()
+        else
+            ((log10(dataValue)- log10(minValue)) / scale).toLong().toInt()
+    }
+
+    override fun getSpaceAvailable(tickPos: Double, tickInc: Double): Int {
+        return scaleData((tickPos + tickInc), tickInc)
     }
 
 

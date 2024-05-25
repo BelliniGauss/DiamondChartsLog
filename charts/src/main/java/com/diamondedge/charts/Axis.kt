@@ -174,6 +174,7 @@ open class Axis protected constructor() {
      * Allow labels drawn on horizontal axis to alternate vertical positions if the label cannot fit in between tick marks.
      * This labels to not overlap.
      */
+    var force2LabelPositions = false
     var allow2LabelPositions = true
     private var showAltHeight = -1
 
@@ -378,7 +379,7 @@ open class Axis protected constructor() {
                     g.font = this.majorTickFont
                     var showTick = true
                     if (majorTickLabelShowing) {
-                        val ex = drawHorLabel(g, tickPos, this.majorTickInc, majorTickLen, majorTickLabelPosition, fm, majorTickLabelColor)
+                        val ex = drawHorLabel(g, tickPos, majorTickInc /*this.majorTickInc*/, majorTickLen, majorTickLabelPosition, fm, majorTickLabelColor)
                         if (ex < 0)
                             showTick = false
                         else
@@ -469,7 +470,7 @@ open class Axis protected constructor() {
         align: TickLabelPosition, fm: FontMetrics, color: Long
     ): Int {
         var extraLine = 0
-        val unitWidth = scaleData(tickInc)
+        val unitWidth = getSpaceAvailable(tickPos, tickInc)
         var label = tickLabel(tickPos)
         if (tickPos == customLineValue && customLineLabel != null)
             label = customLineLabel.toString()
@@ -478,7 +479,7 @@ open class Axis protected constructor() {
         var x = convertToPixel(tickPos)
         var y = yOrigin + tickLabelGap + fm.baseline
 
-        if (allow2LabelPositions && showAltHeight < 0 && strWidth > unitWidth / 2)
+        if (allow2LabelPositions && showAltHeight < 0 && ((strWidth > unitWidth * 0.8) or force2LabelPositions) )
             showAltHeight = 1
 
         if (showAltHeight == 1) {
@@ -541,6 +542,10 @@ open class Axis protected constructor() {
         return extraLine
     }
 
+    open fun getSpaceAvailable(tickPos: Double, tickInc: Double): Int {
+        return scaleData(tickInc)
+    }
+
     private fun drawVertLabel(
         g: GraphicsContext, tickPos: Double, tickInc: Double, tickLen: Int, align: TickLabelPosition, fm: FontMetrics, color: Long
     ) {
@@ -583,7 +588,7 @@ open class Axis protected constructor() {
     /**
      * Return the data value scaled to be in pixels (screen coordinates)
      */
-    open fun scaleData(dataValue: Double): Int {
+    open fun scaleData(dataValue: Double, previousValue:Double = 0.0): Int {
         // converting to long first causes this not to overflow to Int.MAX_VALUE
         return (dataValue / scale).toLong().toInt()
     }
