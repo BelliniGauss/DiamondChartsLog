@@ -270,8 +270,8 @@ class LogarithmicFormatter(){
             return  if (value.toInt() < 1000) {
                 value.toInt().toString()
             }else {
-                if ((value / 1000).toInt() < 10) {
-                    ((value / 1000).toInt().toDouble() + (value / 100).toInt().toDouble()/10).toString() + "K"
+                if ((value / 1000).toInt() < 9.9) {
+                    (value / 1000).toInt().toString() + "." + ((value / 100).toInt().toDouble()/10).toString() + "K"
                 } else
                     (value / 1000).toInt().toString() + "K"
 
