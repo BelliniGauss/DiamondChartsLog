@@ -33,6 +33,7 @@ open class LineGraph(
         return data.getValue(series, dataPt)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     override fun draw(g: GraphicsContext) {
         val dsCount = data.seriesCount
         val dataCount = data.dataCount
@@ -63,48 +64,99 @@ open class LineGraph(
             else
                 g.applyGradient(gradient)
 
+
+
+            val xMinPixel = horAxis!!.convertToPixel( horAxis!!.minValue)
+            val xMaxPixel = horAxis!!.convertToPixel( horAxis!!.maxValue)
+
+            /**
+             * Y interval inverted as Y pixle coordinate is positive top->down,
+             *  while y value axis is positive down -> top ...
+             */
+            val yMinPixel = vertAxis!!.convertToPixel( vertAxis!!.maxValue)
+            val yMaxPixel = vertAxis!!.convertToPixel( vertAxis!!.minValue)
+
+            /**
+             * These will track what has been drawn, this will allow me to set the un-drawn beginning
+             * and terminating point to the same value of the first and last point.
+             */
+            var firstIndexDrawn = -1
+            var lastIndexDrawn = 0
+
+
             for (i in 0 until dataCount) {
-                val xValue = horAxis!!.convertToPixel(getX(series, i))
-                val yValue = vertAxis!!.convertToPixel(getY(series, i))
-                if( xValue.toDouble() in horAxis!!.minValue..horAxis!!.maxValue &&
-                    yValue.toDouble() in vertAxis!!.minValue..vertAxis!!.maxValue    )
+
+                val candidateXvalue = getX(series, i)
+                val candidateYvalue = getY(series, i)
+
+                //  Cheching in-range of set min mnd max axis limits
+                if( candidateXvalue in horAxis!!.minValue .. horAxis!!.maxValue &&
+                    candidateYvalue in vertAxis!!.minValue .. vertAxis!!.maxValue )
                 {
-                    x = xValue + offset
-                    y = yValue
-                    xPts[i + 1] = x
-                    yPts[i + 1] = y
-                    var ptSize = g.dpToPixel(symbolSize)
-                    if (bubbleIndex >= 0 && showBubble) {
-                        val bubble = vertAxis!!.scaleData(data.getValue(series, i, bubbleIndex))
+                    val xValuePixel = horAxis!!.convertToPixel(candidateXvalue)
+                    val yValuePixel  = vertAxis!!.convertToPixel(candidateYvalue)
 
-                        if (isBubble3D) {
-                            g.applyGradient(
-                                Gradient.create(
-                                    listOf(gattr.color, gattr.color.brighter),
-                                    RectangleF(x.toFloat(), y.toFloat(), bubble.toFloat(), bubble.toFloat()),
-                                    GradientType.Radial
+                    //  Cheching in-range of canvas
+                    if( xValuePixel in xMinPixel..xMaxPixel &&
+                        yValuePixel in yMinPixel..yMaxPixel   )
+                    {
+                        if(firstIndexDrawn == -1)
+                            firstIndexDrawn = i
+
+                        lastIndexDrawn = i
+
+                        x = xValuePixel + offset
+                        y = yValuePixel
+                        xPts[i + 1] = x
+                        yPts[i + 1] = y
+                        var ptSize = g.dpToPixel(symbolSize)
+                        if (bubbleIndex >= 0 && showBubble) {
+                            val bubble = vertAxis!!.scaleData(data.getValue(series, i, bubbleIndex))
+
+                            if (isBubble3D) {
+                                g.applyGradient(
+                                    Gradient.create(
+                                        listOf(gattr.color, gattr.color.brighter),
+                                        RectangleF(x.toFloat(), y.toFloat(), bubble.toFloat(), bubble.toFloat()),
+                                        GradientType.Radial
+                                    )
                                 )
-                            )
-                            g.fillOval(x - bubble / 2, y - bubble / 2, bubble, bubble)
-                        } else {
+                                g.fillOval(x - bubble / 2, y - bubble / 2, bubble, bubble)
+                            } else {
+                                g.stroke = symbolStroke
+                                Draw.drawSymbol(g, x, y, bubble.toFloat(), SymbolType.CIRCLE, gattr.color)
+                            }
+                            ptSize = bubble
+                        } else if (gattr.symbol != SymbolType.NONE) {
                             g.stroke = symbolStroke
-                            Draw.drawSymbol(g, x, y, bubble.toFloat(), SymbolType.CIRCLE, gattr.color)
+                            Draw.drawSymbol(g, x, y, symbolSize, gattr.symbol, gattr.color)
                         }
-                        ptSize = bubble
-                    } else if (gattr.symbol != SymbolType.NONE) {
-                        g.stroke = symbolStroke
-                        Draw.drawSymbol(g, x, y, symbolSize, gattr.symbol, gattr.color)
+                        if (hotspots != null) {
+                            if (ptSize < 5)
+                                ptSize = 5
+                            val rect = Rectangle(x - ptSize / 2, y - ptSize / 2, ptSize, ptSize)
+                            hotspots!!.add(Hotspot(this, data, series, i, rect))
+                        }
+                        lastX = x
                     }
-                    if (hotspots != null) {
-                        if (ptSize < 5)
-                            ptSize = 5
-                        val rect = Rectangle(x - ptSize / 2, y - ptSize / 2, ptSize, ptSize)
-                        hotspots!!.add(Hotspot(this, data, series, i, rect))
-                    }
-                    lastX = x
                 }
-
             }
+
+            /**
+             *  Filling the un-drawn starting and ending point with the value of first and last point.
+             */
+            for (i in 0 until firstIndexDrawn) {
+                xPts[i + 1] = xPts[firstIndexDrawn +1]
+                yPts[i + 1] = yPts[firstIndexDrawn +1]
+            }
+            for ( i in (lastIndexDrawn +1) until  (dataCount - 1)){
+                xPts[i + 1] = xPts[lastIndexDrawn ]
+                yPts[i + 1] = yPts[lastIndexDrawn ]
+            }
+
+
+
+
             if (drawLine) {
                 g.stroke = stroke
                 g.drawPolyline(xPts, yPts, startIndex = 1, xPts.size - 2)
