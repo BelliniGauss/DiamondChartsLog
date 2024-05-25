@@ -219,7 +219,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
 
 
     /**
-     * Return data value scaled to be in pixels
+     * Return data value scaled to be in pixels, starting from the beginning of the axis
      */
     override fun scaleData(dataValue: Double): Int {
         return ((log10(dataValue)- log10(minValue)) / scale).toLong().toInt()
@@ -271,7 +271,7 @@ class LogarithmicFormatter(){
                 value.toInt().toString()
             }else {
                 if ((value / 1000).toInt() < 9.9) {
-                    (value / 1000).toInt().toString() + "." + ((value / 100).toInt()/10).toString() + "K"
+                    (value / 1000).toInt().toString() + "." + ((value / 100).toInt().mod(10)).toString() + "K"
                 } else
                     (value / 1000).toInt().toString() + "K"
 
