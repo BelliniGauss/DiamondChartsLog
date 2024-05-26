@@ -294,18 +294,22 @@ class LogarithmicFormatter(){
         fun composeStandardString(value: Double, letterToAppend: String): String{
             val unit = value.toInt()
             val decimal = (value * 10).mod(10.0).toInt()
-            if (unit >= 10){
+
+            if (unit >= 1 && decimal == 0)
                 return unit.toString() + letterToAppend
-            }
+
             return unit.toString() + "." + decimal.toString() + letterToAppend
         }
 
         fun compopseStringUnits(value: Double): String{
             val unit = value.toInt()
             val decimal = (value * 10).mod(10.0).toInt()
-            if(unit  >= 10){
+
+            if(unit >= 999)
+                return "1k"
+            if(unit  >= 1 && decimal == 0)
                 return unit.toString()
-            }
+
             return  unit.toString() + "." + decimal.toString()
         }
     }
