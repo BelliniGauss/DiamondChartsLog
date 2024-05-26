@@ -229,7 +229,7 @@ class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : De
     }
 
     override fun getSpaceAvailable(tickPos: Double, tickInc: Double): Int {
-        return scaleData((tickPos + tickInc), tickInc)
+        return scaleData((tickPos + tickInc), tickPos)
     }
 
 
