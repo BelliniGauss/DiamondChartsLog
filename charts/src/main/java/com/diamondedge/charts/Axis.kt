@@ -248,6 +248,11 @@ open class Axis protected constructor() {
     var endAtMaxValue: Boolean = false
 
     /**
+     * Makes so that the min / maxValueOverride will prevail over any other min/max logic.
+     */
+    var UserOverrideMinMax: Boolean = true
+
+    /**
      * The position of the label relative to the major tick marks are being drawn.
      * One of: TICK_CENTER, GROUP_CENTER, RIGHT_OF_TICK, BELOW_TICK, ABOVE_TICK
      */
@@ -294,12 +299,12 @@ open class Axis protected constructor() {
 
     internal open fun calcMetrics(rangePix: Int, g: GraphicsContext, font: Font? = null) {
         maxValueOverride?.let { overrideValue ->
-            if (overrideValue > maxValue)
+            if (overrideValue > maxValue || UserOverrideMinMax)
                 maxValue = overrideValue
         }
 
         minValueOverride?.let { overrideValue ->
-            if (overrideValue < minValue)
+            if (overrideValue < minValue || UserOverrideMinMax)
                 minValue = overrideValue
         }
 

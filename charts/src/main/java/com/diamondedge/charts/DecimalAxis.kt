@@ -68,11 +68,11 @@ open class DecimalAxis : Axis() {
             }
         }
 
-        if (!startAtMinValue) {
+        if (!startAtMinValue && !UserOverrideMinMax) {
             // make minVal be an exact multiple of majorTickInc just smaller than minVal
             minValue = floor(min(minValue, minDataVal - lowerDataMargin) / majorTickInc) * majorTickInc
         }
-        if (!endAtMaxValue) {
+        if (!endAtMaxValue && !UserOverrideMinMax) {
             // make maxVal be an exact multiple of majorTickInc just larger than maxVal
             maxValue = ceil(max(maxValue, maxDataVal + upperDataMargin) / majorTickInc) * majorTickInc
         }
