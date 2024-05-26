@@ -283,7 +283,7 @@ class LogarithmicFormatter(){
                 in 0.000000000099 .. 0.000000011 ->{ composeStandardString (value * 1000000000.0, "n")}      /* nano: 10n  1n  0.1n   */
                 in 0.000000099 .. 0.000011 ->{ composeStandardString (value * 1000000.0, "u")}               /* micro: 10u  1u 0.1u   */
                 in 0.000099 .. 0.011 ->{ composeStandardString (value * 1000.0, "m")}                        /* milli: 10m  1m 0.1m   */
-                in 0.099 .. 110.0 -> { compopseStringUnits(value)}                                          /* UNIT:  0.1 1 10 100 */
+                in 0.099 .. 110.0 -> { compopseStringUnits(value)}                                                              /* UNIT:  0.1 1 10 100 */
                 in 990.0 .. 11000.0 -> {composeStandardString (value / 1000.0, "K")}                         /* thousands: 1K 10K */
                 in 99000.0 .. 11000000.0 -> {composeStandardString (value / 1000000.0, "M")}                 /* million: 0.1M 1M 10M*/
                 in 99000000.0 .. 11000000000.0 -> {composeStandardString (value / 1000000000.0, "G")}        /* billion: 0.1G 1G 10G*/
@@ -291,6 +291,10 @@ class LogarithmicFormatter(){
             }
         }
 
+        /**
+         * composing string as 55x, 10x, 5.5x, 5x, 1x, 0.5x etc, decimal showing only for number less than 10 (9.9 downwards)
+         * appending unit multiplier "x" like m for millis, G for billions, K for thousands etc.
+         */
         fun composeStandardString(value: Double, letterToAppend: String): String{
             val unit = value.toInt()
             val decimal = (value * 10).mod(10.0).toInt()
@@ -301,6 +305,11 @@ class LogarithmicFormatter(){
             return unit.toString() + "." + decimal.toString() + letterToAppend
         }
 
+        /**
+         * composing string like 1k, 999, 500, 50, 10, 5, 5.5, 1.5, 0.9, 0.5, 0.1
+         * decimal showing only for number less than 10 (9.9 downwards)
+         * appending unit multiplier "K"  only for special case 1000 = 1K
+         */
         fun compopseStringUnits(value: Double): String{
             val unit = value.toInt()
             val decimal = (value * 10).mod(10.0).toInt()
