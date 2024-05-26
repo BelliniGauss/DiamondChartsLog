@@ -245,7 +245,7 @@ class LogarithmicAxis(initializationBaseLabelPosition: Array<Int>? = null ) : De
     }
 
     companion object {
-        private val LOG10 = ln(10.0)
+        internal val LOG10 = ln(10.0)
 
         private val log = moduleLogging()
 
@@ -274,16 +274,39 @@ class LogarithmicFormatter(){
     companion object : NumberFormatter {
         override operator fun invoke(value: Double): String{
 
-            return  if (value.toInt() < 1000) {
-                value.toInt().toString()
-            }else {
-                if ((value / 1000).toInt() < 9.9) {
-                    (value / 1000).toInt().toString() + "." + ((value / 100).toInt().mod(10)).toString() + "K"
-                } else
-                    (value / 1000).toInt().toString() + "K"
 
+            var orderOfMagnitude = if(value > 0.0) 10.0.pow(floor(ln(value) / LogarithmicAxis.LOG10)) else {
+                0.0000000001
             }
 
+            return when(orderOfMagnitude){
+                in 0.000000000099 .. 0.000000011 ->{ composeStandardString (value * 1000000000.0, "n")}      /* nano: 10n  1n  0.1n   */
+                in 0.000000099 .. 0.000011 ->{ composeStandardString (value * 1000000.0, "u")}               /* micro: 10u  1u 0.1u   */
+                in 0.000099 .. 0.011 ->{ composeStandardString (value * 1000.0, "m")}                        /* milli: 10m  1m 0.1m   */
+                in 0.099 .. 110.0 -> { compopseStringUnits(value)}                                          /* UNIT:  0.1 1 10 100 */
+                in 990.0 .. 11000.0 -> {composeStandardString (value / 1000.0, "K")}                         /* thousands: 1K 10K */
+                in 99000.0 .. 11000000.0 -> {composeStandardString (value / 1000000.0, "M")}                 /* million: 0.1M 1M 10M*/
+                in 99000000.0 .. 11000000000.0 -> {composeStandardString (value / 1000000000.0, "G")}        /* billion: 0.1G 1G 10G*/
+                else -> {"0"}
+            }
+        }
+
+        fun composeStandardString(value: Double, letterToAppend: String): String{
+            val unit = value.toInt()
+            val decimal = (value * 10).mod(10.0).toInt()
+            if (unit >= 10){
+                return unit.toString() + letterToAppend
+            }
+            return unit.toString() + "." + decimal.toString() + letterToAppend
+        }
+
+        fun compopseStringUnits(value: Double): String{
+            val unit = value.toInt()
+            val decimal = (value * 10).mod(10.0).toInt()
+            if(unit  >= 10){
+                return unit.toString()
+            }
+            return  unit.toString() + "." + decimal.toString()
         }
     }
 
