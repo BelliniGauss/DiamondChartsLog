@@ -7,7 +7,7 @@ class LogXYGraph (
     showBubble: Boolean = false,
     curveSmoothing: Boolean = false,
     private val logAxisSelection: AxisGroup = AxisGroup.Horizontal,
-    var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)
+    private val baseLabelPosition: Array<Int>? = null
 ) : XYGraph(logToLinear(data), drawLine, fillArea, showBubble, curveSmoothing) {
 
 

@@ -85,6 +85,13 @@ open class Axis protected constructor() {
      */
     var lowerDataMargin = 0.0
 
+    /**
+     *  Base multiplier for position of labels in a log axis.
+     *  example: (1,2,5) will create label at 1,2,5, 10,20,50, 100,200,500 etc.
+     */
+    var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)
+
+
     private val majorTickLabelShowing = true
     private var minVal = 0.0
     private var maxVal = 100.0

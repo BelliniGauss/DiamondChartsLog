@@ -10,16 +10,16 @@ import kotlin.math.floor
 import kotlin.math.ln
 import kotlin.math.pow
 
-class LogarithmicAxis(var baseLabelPosition: Array<Int> = arrayOf(1, 2, 5)) : DecimalAxis(
+class LogarithmicAxis(initializationBaseLabelPosition: Array<Int>? = null ) : DecimalAxis(
 ) {
     init {
         minorTickIncNum = 10
+        numberFormatter = LogarithmicFormatter
+        isMinorTickShowing = true
+        if (initializationBaseLabelPosition != null) {
+            baseLabelPosition = initializationBaseLabelPosition
+        }
     }
-    /**
-     * This property will make the plot area extend further than the data, up to the next major tick.
-     */
-    //public var extendRangeToMajorTick = true
-
 
 
     private fun tag(): String = if (isVertical) "VertLogAxis" else "HorLogAxis"
